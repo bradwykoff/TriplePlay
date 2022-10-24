@@ -1,0 +1,107 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "TriplePlayMedia"
+#CATEGORY "46" "TriplePlay" 
+// #HINT ""
+#DEFINE_CONSTANT    MaxClients 300
+#PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_ASCII
+//#ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+//#INCLUDEPATH "C:\\Users\\BradWykoff\\source\\repos\\SIMPLSharpLibrary2\\bin\\Debug"
+//#USER_SIMPLSHARP_LIBRARY "SIMPLSharpLibrary2"
+#INCLUDEPATH "C:\\VS2019\\TriplePlayServer\\bin\\Debug"
+#USER_SIMPLSHARP_LIBRARY "TriplePlayServer"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+
+DIGITAL_INPUT _SKIP_,  Initialize, QueryServer;
+DIGITAL_OUTPUT _SKIP_, Busy;
+
+STRING_OUTPUT TotalClients , myLocale[MaxClients], myLocation[MaxClients], myAuxiliaryID[MaxClients], myClientID[MaxClients];
+
+
+STRING_PARAMETER ServerIP[30];
+
+#BEGIN_PARAMETER_PROPERTIES ServerIP
+	PropValidUnits = UnitString;
+	PropDefaultValue = "";
+#END_PARAMETER_PROPERTIES
+
+	
+MyServer _myServer;
+
+function UpdateNameList(integer index, string clientId, string locale, string location, string auxiliary)
+{
+    myClientID[index] = clientId;
+    myLocale[index] = locale;
+    myLocation[index] = location;
+    myAuxiliaryID[index] = auxiliary;
+                
+}
+
+Push Initialize
+{
+    Busy = 1;
+  _myServer.MYSERVERIP = ServerIP;
+    Busy = 0;
+}
+
+Push QueryServer
+{
+    busy = 1;
+    _myServer.QueryServer();
+    busy = 0;
+    TotalClients = _myServer.MyCount;
+}  
+
+EventHandler SimplPlusEventHandler(MyServer sender, myEventArgs e)
+{
+	updateNameList(e.MyIndex, e.MyClientId, e.MyLocale, e.MyLocation, e.MyAuxiliaryId);
+	Trace("%u, %s, %s, %s, %s", e.MyIndex, e.MyClientId, e.MyLocale, e.MyLocation, e.MyAuxiliaryId);
+}
+
+
+Function Main()
+{
+	WaitForInitializationComplete();
+	registerevent(_myServer, MyEventToCall, SimplPlusEventHandler);
+}

@@ -1,0 +1,151 @@
+/*
+System Name:TCP_IP_CLIENT
+Programmer:Nathan Hesson
+Comments:See the HELP Section
+*/
+#SYMBOL_NAME "TriplePlayClient v3.0"
+#CATEGORY "46" "TriplePlay" // Custom
+ 
+
+#INCLUDEPATH "C:\\VS2019\\TriplePlayServer\\bin\\Debug"
+#USER_SIMPLSHARP_LIBRARY "TriplePlayServer"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+STRING_INPUT ChangeChannel[10], ClientID[10];
+STRING_OUTPUT CurrentChannel$, ChannelName$;
+DIGITAL_INPUT _SKIP_, _SKIP_, _SKIP_, Initialize, PollPower, PollChannels, Display_Power_On, Display_Power_Off, InputHDMI_1, InputHDMI_2, ChannelChange;
+DIGITAL_OUTPUT _SKIP_, _SKIP_, _SKIP_, Busy, PowerOn_Fb, PowerOff_Fb, HDMI_1_Fb, HDMI_2_Fb, HDMI_3_Fb;
+ANALOG_OUTPUT    CurrentChannel;
+
+STRING_PARAMETER ServerIP[30], AuxiliaryID[5];
+
+#BEGIN_PARAMETER_PROPERTIES ServerIP
+	PropValidUnits = UnitString;
+	PropDefaultValue = "";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES AuxiliaryID
+	PropValidUnits = UnitString;
+	PropDefaultValue = "";
+#END_PARAMETER_PROPERTIES
+
+MyServer _myServer;
+
+Function PowerStatus()
+{ 
+    String TempPower[10];
+    TempPower = _myserver.DisplayPowerFb;
+    print("Power State iText: %s", TempPower);
+         
+    If( TempPower = "off")
+    {
+        PowerOn_Fb = 0;
+        PowerOff_Fb = 1;
+    }
+    Else If(TempPower = "on")
+    {
+        PowerOff_Fb = 0;
+        PowerOn_Fb = 1;
+    }
+
+}
+   
+Push Initialize
+{
+    _myServer.MYSERVERIP = ServerIP;
+    _myServer.MYAUXILIARYID = AuxiliaryID;    
+    _myServer.MYCLIENTID = ClientID; 
+    _myServer.QueryClient(); 
+    Delay(500);
+    _myServer.GetChannel();
+    Delay(500);
+    CurrentChannel$ = _myServer.CurrentChannel;
+    ChannelName$ = _myServer.CurrentChannelName;
+             
+}
+
+Push PollChannels
+{
+ While (PollChannels = 1)
+    {
+      DO 
+        {
+            _myServer.QueryClient();
+            Delay(500);
+            _myServer.GetChannel();
+            Delay(500);
+        }
+       Until(PollChannels = 0); 
+       CurrentChannel$ = _myServer.CurrentChannel;
+       ChannelName$ = _myServer.CurrentChannelName;
+
+    }
+
+}
+
+Push PollPower
+{
+    while(PollPower = 1)
+    {
+        _myServer.QueryDisplayPower();
+        Delay(300);
+        PowerStatus();
+    }
+}
+
+ 
+Push Display_Power_On
+{
+   _myServer.DisplayPowerOn();
+    CurrentChannel$ = _myServer.CurrentChannel;
+    ChannelName$ = _myServer.CurrentChannelName;
+}
+
+Push Display_Power_Off
+{
+   _myServer.DisplayPowerOff();
+}
+Push InputHDMI_1
+{
+    _myServer.DisplayHDMI1();
+    HDMI_2_Fb = 0;
+    HDMI_3_Fb = 0;
+    HDMI_1_Fb = 1;
+    DELAY(200);
+    _myserver.ChannelDown();
+    DELAY(200);
+    _myserver.ChannelUp();
+
+}
+
+Push InputHDMI_2
+{
+    _myServer.DisplayHDMI2();
+     HDMI_1_Fb = 0;
+    HDMI_3_Fb = 0;
+    HDMI_2_Fb = 1;
+}
+
+Push ChannelChange
+{
+    _myServer.MyChannel = ChangeChannel;
+    _myServer.SelectChannel();
+    DELAY(400);
+    _myServer.QueryClient();
+    DELAY(400);
+    _myServer.GetChannel();
+    
+    CurrentChannel$ = _myServer.CurrentChannel;
+    ChannelName$ = _myServer.CurrentChannelName;
+
+}
+  
+Function Main()
+{
+	WaitForInitializationComplete();
+    //registerevent(_myServer, MyChannelToCall, SimplPlusChannelHandler);
+}
+
