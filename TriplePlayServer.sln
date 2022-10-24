@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32510.428
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TriplePlayServer", "TriplePlayServer.csproj", "{523CBC58-F641-4F5B-8377-F52A78C5EE21}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{523CBC58-F641-4F5B-8377-F52A78C5EE21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{523CBC58-F641-4F5B-8377-F52A78C5EE21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{523CBC58-F641-4F5B-8377-F52A78C5EE21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{523CBC58-F641-4F5B-8377-F52A78C5EE21}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B1D9986B-6BE4-4DA6-878A-07E301F13B44}
+	EndGlobalSection
+EndGlobal
